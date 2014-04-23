@@ -63,6 +63,7 @@ my $static_prereqs = do { my $x = {
                                       'Carp' => '0',
                                       'List::Objects::Types' => '1',
                                       'Moo' => '1',
+                                      'MooX::Role::POE::Emitter' => '0',
                                       'MooX::late' => '0.014',
                                       'POE' => '1',
                                       'POE::Component::Client::HTTP' => '0',

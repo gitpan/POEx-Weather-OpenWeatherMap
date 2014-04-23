@@ -122,8 +122,8 @@ sub pwx_error {
   my $status = $err->status;
   my $req    = $err->request;
 
-  if ($req->{tag}) {
-    my $chan = $req->{tag};
+  if ($req->tag) {
+    my $chan = $req->tag;
     $_[HEAP]->irc->privmsg($chan => "Error: $err");
   }
   warn "Error: $err";
@@ -160,9 +160,10 @@ sub pwx_weather {
 
 sub pwx_forecast {
   my $res = $_[ARG0];
-  my $chan = $res->request->tag;
 
   my $place = $res->name;
+
+  my $chan = $res->request->tag;
 
   $_[HEAP]->irc->privmsg($chan =>
     "Forecast for $place ->"

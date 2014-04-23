@@ -1,5 +1,5 @@
 package POEx::Weather::OpenWeatherMap;
-$POEx::Weather::OpenWeatherMap::VERSION = '0.001001';
+$POEx::Weather::OpenWeatherMap::VERSION = '0.001002';
 use v5.10;
 use strictures 1;
 use Carp;
@@ -26,12 +26,6 @@ has api_key => (
   builder     => sub { '' },
 );
 
-has _in_shutdown => (
-  is          => 'rw',
-  isa         => Bool,
-  default     => sub { 0 },
-);
-
 has _ua_alias => (
   lazy        => 1,
   init_arg    => 'ua_alias',
@@ -47,7 +41,6 @@ has _ua_alias => (
 
 sub start {
   my ($self) = @_;
-  $self->_in_shutdown(0) if $self->_in_shutdown;
   $self->set_object_states(
     [
       $self => +{
@@ -66,7 +59,6 @@ sub start {
 
 sub stop {
   my ($self) = @_;
-  $self->_in_shutdown(1);
   $self->_shutdown_emitter
 }
 
@@ -84,7 +76,7 @@ sub mxrp_emitter_started {
 
 sub mxrp_emitter_stopped {
   my ($kernel, $self) = @_[KERNEL, OBJECT];
-  $kernel->post( $self->_ua_alias => 'shutdown' )
+  $kernel->call( $self->_ua_alias => 'shutdown' )
     if $kernel->alias_resolve( $self->_ua_alias );
 }
 
@@ -95,6 +87,7 @@ sub get_weather {
 
 sub ext_get_weather {
   my $self = $_[OBJECT];
+
   my %args = @_[ARG0 .. $#_];
 
   my $location = $args{location};
@@ -147,8 +140,6 @@ sub _issue_http_request {
 
 sub ext_http_response {
   my $self = $_[OBJECT];
-
-  return if $self->_in_shutdown;
 
   my (undef, $my_request) = @{ $_[ARG0] };
   my ($http_response)     = @{ $_[ARG1] };

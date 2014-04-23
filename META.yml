@@ -17,6 +17,7 @@ requires:
   Carp: 0
   List::Objects::Types: 1
   Moo: 1
+  MooX::Role::POE::Emitter: 0
   MooX::late: 0.014
   POE: 1
   POE::Component::Client::HTTP: 0
@@ -26,4 +27,4 @@ requires:
   strictures: 1
 resources:
   repository: git://github.com/avenj/poex-weather-openweathermap.git
-version: 0.001001
+version: 0.001002

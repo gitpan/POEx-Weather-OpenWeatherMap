@@ -24,6 +24,7 @@ my %WriteMakefileArgs = (
     "Carp" => 0,
     "List::Objects::Types" => 1,
     "Moo" => 1,
+    "MooX::Role::POE::Emitter" => 0,
     "MooX::late" => "0.014",
     "POE" => 1,
     "POE::Component::Client::HTTP" => 0,
@@ -34,7 +35,7 @@ my %WriteMakefileArgs = (
   "TEST_REQUIRES" => {
     "Test::More" => "0.88"
   },
-  "VERSION" => "0.001001",
+  "VERSION" => "0.001002",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -45,6 +46,7 @@ my %FallbackPrereqs = (
   "Carp" => 0,
   "List::Objects::Types" => 1,
   "Moo" => 1,
+  "MooX::Role::POE::Emitter" => 0,
   "MooX::late" => "0.014",
   "POE" => 1,
   "POE::Component::Client::HTTP" => 0,

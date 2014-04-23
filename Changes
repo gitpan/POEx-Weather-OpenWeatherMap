@@ -1,5 +1,11 @@
 Revision history for Perl module POEx-Weather-OpenWeatherMap
 
+0.001002 2014-04-23
+
+  - Drop some deprecated leftovers ('_in_shutdown' attr)
+
+  - Packaging fixes; missing MooX::Role::POE::Emitter dependency
+
 0.001001 2014-04-23
 
   - Initial release
