@@ -1,0 +1,225 @@
+# NAME
+
+POEx::Weather::OpenWeatherMap - POE-enabled OpenWeatherMap client
+
+# SYNOPSIS
+
+    use POE;
+    use POEx::Weather::OpenWeatherMap;
+
+    my $api_key = 'foo';
+
+    POE::Session->create(
+      package_states => [
+        main => [qw/
+          _start
+          
+
+          pwx_error
+          pwx_weather
+          pwx_forecast
+        /],
+      ],
+    );
+
+    sub _start {
+      my ($kernel, $heap) = @_[KERNEL, HEAP];
+      
+
+    # Create and start emitter:
+    my $wx = POEx::Weather::OpenWeatherMap->new(
+      api_key      => $api_key,
+      event_prefix => 'pwx_',
+    );
+
+    $heap->{wx} = $wx;
+    $wx->start;
+
+      ## An example request:
+      $wx->get_weather(
+        location => 'Manchester, NH',
+        tag      => 'mytag',
+      );
+    }
+
+    sub pwx_error {
+      my $err = $_[ARG0];
+      my $status  = $err->status;
+      my $request = $err->request;
+      # ... do something with error ...
+      warn "Error! ($status)";
+    }
+
+    sub pwx_weather {
+      my $result = $_[ARG0];
+
+    my $tag = $result->request->tag;
+
+    my $place = $result->name;
+
+      my $tempf = $result->temp_f;
+      my $conditions = $result->conditions_verbose;
+      # (see Weather::OpenWeatherMap::Result::Current for a method list)
+      # ...
+    }
+
+    sub pwx_forecast {
+      my $result = $_[ARG0];
+
+    my $place = $result->name;
+
+      my $itr = $result->iter;
+      while (my $day = $itr->()) {
+        my $date = $day->dt->mdy;
+        my $temp_hi = $day->temp_max_f;
+        my $temp_lo = $day->temp_min_f;
+        # (see Weather::OpenWeatherMap::Result::Forecast)
+        # ...
+      }
+    }
+
+    POE::Kernel->run;
+
+# DESCRIPTION
+
+A POE-enabled interface to OpenWeatherMap ([http://www.openweathermap.org](http://www.openweathermap.org)),
+providing an object-oriented asynchronous interface to current & forecast
+weather conditions for a given city, latitude/longitude, or OpenWeatherMap
+city code.
+
+This is really just an asynchronous counterpart to [Weather::OpenWeatherMap](http://search.cpan.org/perldoc?Weather::OpenWeatherMap);
+look there for documentation regarding Request & Result objects.
+
+This an event emitter that consumes [MooX::Role::POE::Emitter](http://search.cpan.org/perldoc?MooX::Role::POE::Emitter); look there
+for documentation on composed methods. See [http://www.openweathermap.org](http://www.openweathermap.org)
+for more on OpenWeatherMap itself.
+
+## ATTRIBUTES
+
+### api\_key
+
+Your [OpenWeatherMap](http://www.openweathermap.org) API key.
+
+(See [http://www.openweathermap.org/api](http://www.openweathermap.org/api) to register for free.)
+
+## METHODS
+
+### start
+
+Start our session.
+
+Must be called before events will be received or emitted.
+
+### stop
+
+Stop our session, shutting down the emitter and user agent (which will cancel
+pending requests).
+
+### get\_weather
+
+    $wx->get_weather(
+      # 'location =>' is mandatory.
+      #  These are all valid location strings:
+      #  By name:
+      #   'Manchester, NH'
+      #   'London, UK'
+      #  By OpenWeatherMap city code:
+      #   5089178
+      #  By latitude/longitude:
+      #   'lat 42, long -71'
+      location => 'Manchester, NH',
+
+    # Set 'forecast => 1' to get the forecast,
+    # omit or set to false for current weather:
+    forecast => 1,
+
+    # If 'forecast' is true, you can specify the number of days to fetch
+    # (up to 14):
+    days => 3,
+
+      # Optional tag for identifying the response to this request:
+      tag  => 'foo',
+    );
+
+Request a weather report for the given `location =>`.
+
+The location can be a 'City, State' or 'City, Country' string, an
+[OpenWeatherMap](http://www.openweathermap.org/) city code, or a 'lat X, long
+Y' string.
+
+Requests the current weather by default (see
+[Weather::OpenWeatherMap::Request::Current](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Request::Current)).
+
+If passed `forecast => 1`, requests a weather forecast (see
+[Weather::OpenWeatherMap::Request::Forecast](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Request::Forecast)), in which case `days
+=> $count` can be specified (up to 14).
+
+An optional `tag =>` can be specified to identify the response when it
+comes in.
+
+Any extra arguments are passed to the constructor for the appropriate Request
+subclass; see [Weather::OpenWeatherMap::Request](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Request).
+
+The request is made asynchronously and a response (or error) emitted when it
+is available; see ["EMITTED EVENTS"](#EMITTED EVENTS). There is no useful return value.
+
+## RECEIVED EVENTS
+
+### get\_weather
+
+    $poe_kernel->post( $wx->session_id =>
+      get_weather =>
+        location => 'Manchester, NH',
+        tag      => 'foo',
+    );
+
+POE interface to the ["get\_weather"](#get\_weather) method; see ["METHODS"](#METHODS) for available
+options.
+
+## EMITTED EVENTS
+
+### error
+
+Emitted when an error occurs; this may be an internal error, an HTTP error,
+or an error reported by the OpenWeatherMap API.
+
+`$_[ARG0]` is a [Weather::OpenWeatherMap::Error](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Error) object.
+
+### weather
+
+Emitted when a request for the current weather has been successfully processed.
+
+`$_[ARG0]` is a [Weather::OpenWeatherMap::Result::Current](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Result::Current) object; see
+that module's documentation for details on retrieving weather information.
+
+### forecast
+
+Emitted when a request for a weather forecast has been successfully processed.
+
+`$_[ARG0]` is a [Weather::OpenWeatherMap::Result::Forecast](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Result::Forecast) object;
+see that module's documentation for details on retrieving per-day forecasts
+([Weather::OpenWeatherMap::Result::Forecast::Day](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Result::Forecast::Day) objects).
+
+# SEE ALSO
+
+[Weather::OpenWeatherMap](http://search.cpan.org/perldoc?Weather::OpenWeatherMap)
+
+[Weather::OpenWeatherMap::Error](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Error)
+
+[Weather::OpenWeatherMap::Result](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Result)
+
+[Weather::OpenWeatherMap::Result::Current](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Result::Current)
+
+[Weather::OpenWeatherMap::Result::Forecast](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Result::Forecast)
+
+[Weather::OpenWeatherMap::Request](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Request)
+
+[Weather::OpenWeatherMap::Request::Current](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Request::Current)
+
+[Weather::OpenWeatherMap::Request::Forecast](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Request::Forecast)
+
+The `examples/` directory of this distribution.
+
+# AUTHOR
+
+Jon Portnoy <avenj@cobaltirc.org>
