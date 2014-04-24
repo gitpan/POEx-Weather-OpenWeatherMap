@@ -1,5 +1,9 @@
 Revision history for Perl module POEx-Weather-OpenWeatherMap
 
+0.001003 2014-04-24
+
+  - POD, test tweaks
+
 0.001002 2014-04-23
 
   - Drop some deprecated leftovers ('_in_shutdown' attr)

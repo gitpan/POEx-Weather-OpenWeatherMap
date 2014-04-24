@@ -8,6 +8,7 @@ Makefile.PL
 README
 README.mkdn
 dist.ini
+examples/get_one.pl
 examples/weatherbot.pl
 lib/POEx/Weather/OpenWeatherMap.pm
 t/00-report-prereqs.t

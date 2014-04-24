@@ -27,4 +27,4 @@ requires:
   strictures: 1
 resources:
   repository: git://github.com/avenj/poex-weather-openweathermap.git
-version: 0.001002
+version: 0.001003

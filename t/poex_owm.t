@@ -1,6 +1,8 @@
 use Test::More;
 use strict; use warnings FATAL => 'all';
 
+my $mocked_response = 0;
+
 { package
     MockHTTPClientSession;
   use strict; use warnings FATAL => 'all';
@@ -19,7 +21,8 @@ use strict; use warnings FATAL => 'all';
           [ $http_req, $my_req ],
           [ $http_response ],
         );
-        $_[KERNEL]->alias_remove( 'mockua' );
+        $mocked_response++;
+        $_[KERNEL]->alias_remove( 'mockua' ) if $mocked_response == 2;
       },
     },
   );
@@ -33,7 +36,6 @@ my $got = +{};
 my $expected = +{
   'current weather ok'  => 1,
   'forecast weather ok' => 1,
-  'error ok'            => 1,
 };
 
 POE::Session->create(
@@ -60,9 +62,6 @@ POE::Session->create(
         days     => 3,
       );
 
-      # pwx_error
-      $_[HEAP]->{wx}->get_weather;
-
       $_[HEAP]->{secs} = 0;
       $_[KERNEL]->delay( check_if_done => 1 );
     },
@@ -77,20 +76,14 @@ POE::Session->create(
         if $res->name eq 'Manchester'
         and $res->isa('Weather::OpenWeatherMap::Result::Forecast');
     },
-    pwx_error => sub {
-      my $err = $_[ARG0];
-      $got->{'error ok'}++
-        if $err->isa('Weather::OpenWeatherMap::Error');
-    },
     check_if_done => sub {
-      my $done;
+      my $done = keys %$expected == keys %$got ? 1 : 0;
       $_[HEAP]->{secs}++;
       if ($_[HEAP]->{secs} == 60) {
         $_[HEAP]->{wx}->stop;
         $done++;
         fail "Timed out"
       }
-      $done = 1 if keys %$expected == keys %$got;
       $_[HEAP]->{wx}->stop if $done;
       $_[KERNEL]->delay( check_if_done => 1 ) unless $done;
     },
@@ -99,6 +92,7 @@ POE::Session->create(
 
 POE::Kernel->run;
 
+ok $mocked_response == 2, 'mocked 2 responses ok';
 is_deeply $got, $expected, 'got expected results ok';
 
 done_testing

@@ -1,5 +1,5 @@
 package POEx::Weather::OpenWeatherMap;
-$POEx::Weather::OpenWeatherMap::VERSION = '0.001002';
+$POEx::Weather::OpenWeatherMap::VERSION = '0.001003';
 use v5.10;
 use strictures 1;
 use Carp;
@@ -209,6 +209,7 @@ POEx::Weather::OpenWeatherMap - POE-enabled OpenWeatherMap client
   use POE;
   use POEx::Weather::OpenWeatherMap;
 
+  # An API key can be obtained (free) at http://www.openweathermap.org:
   my $api_key = 'foo';
 
   POE::Session->create(
@@ -226,7 +227,7 @@ POEx::Weather::OpenWeatherMap - POE-enabled OpenWeatherMap client
   sub _start {
     my ($kernel, $heap) = @_[KERNEL, HEAP];
     
-    # Create and start emitter:
+    # Create, store, and start emitter:
     my $wx = POEx::Weather::OpenWeatherMap->new(
       api_key      => $api_key,
       event_prefix => 'pwx_',
