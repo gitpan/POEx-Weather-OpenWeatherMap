@@ -60,17 +60,14 @@ my $static_prereqs = do { my $x = {
                     },
        'runtime' => {
                       'requires' => {
-                                      'Carp' => '0',
-                                      'List::Objects::Types' => '1',
+                                      'Defaults::Modern' => '0',
                                       'Moo' => '1',
                                       'MooX::Role::POE::Emitter' => '0',
                                       'MooX::late' => '0.014',
                                       'POE' => '1',
                                       'POE::Component::Client::HTTP' => '0',
-                                      'Types::Standard' => '0',
                                       'Weather::OpenWeatherMap' => '0.001002',
-                                      'perl' => 'v5.10.1',
-                                      'strictures' => '1'
+                                      'perl' => 'v5.16.0'
                                     }
                     },
        'test' => {

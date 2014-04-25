@@ -1,5 +1,9 @@
 Revision history for Perl module POEx-Weather-OpenWeatherMap
 
+0.001004 2014-04-25
+
+  - use Defaults::Modern;
+
 0.001003 2014-04-24
 
   - POD, test tweaks

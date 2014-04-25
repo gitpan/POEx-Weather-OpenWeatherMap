@@ -1,11 +1,6 @@
 package POEx::Weather::OpenWeatherMap;
-$POEx::Weather::OpenWeatherMap::VERSION = '0.001003';
-use v5.10;
-use strictures 1;
-use Carp;
-
-use List::Objects::Types -all;
-use Types::Standard      -all;
+$POEx::Weather::OpenWeatherMap::VERSION = '0.001004';
+use Defaults::Modern;
 
 use POE 'Component::Client::HTTP';
 
@@ -39,8 +34,7 @@ has _ua_alias => (
 );
 
 
-sub start {
-  my ($self) = @_;
+method start {
   $self->set_object_states(
     [
       $self => +{
@@ -57,14 +51,10 @@ sub start {
   $self->_start_emitter
 }
 
-sub stop {
-  my ($self) = @_;
-  $self->_shutdown_emitter
-}
+method stop { $self->_shutdown_emitter }
 
-sub _emit_error {
-  my $self = shift;
-  my $err = Weather::OpenWeatherMap::Error->new(@_);
+method _emit_error (@params) {
+  my $err = Weather::OpenWeatherMap::Error->new(@params);
   $self->emit( error => $err );
   $err
 }
@@ -80,10 +70,7 @@ sub mxrp_emitter_stopped {
     if $kernel->alias_resolve( $self->_ua_alias );
 }
 
-sub get_weather {
-  my $self = shift;
-  $self->yield(get_weather => @_)
-}
+method get_weather (@params) { $self->yield(get_weather => @params) }
 
 sub ext_get_weather {
   my $self = $_[OBJECT];
@@ -121,9 +108,7 @@ sub ext_get_weather {
 }
 
 
-sub _issue_http_request {
-  my ($self, $my_request) = @_;
-
+method _issue_http_request (Object $my_request) {
   unless ( $poe_kernel->alias_resolve($self->_ua_alias) ) {
     POE::Component::Client::HTTP->spawn(
       Alias           => $self->_ua_alias,

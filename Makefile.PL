@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use 5.010001;
+use 5.016000;
 
 use ExtUtils::MakeMaker 6.30;
 
@@ -21,21 +21,18 @@ my %WriteMakefileArgs = (
   "LICENSE" => "perl",
   "NAME" => "POEx::Weather::OpenWeatherMap",
   "PREREQ_PM" => {
-    "Carp" => 0,
-    "List::Objects::Types" => 1,
+    "Defaults::Modern" => 0,
     "Moo" => 1,
     "MooX::Role::POE::Emitter" => 0,
     "MooX::late" => "0.014",
     "POE" => 1,
     "POE::Component::Client::HTTP" => 0,
-    "Types::Standard" => 0,
-    "Weather::OpenWeatherMap" => "0.001002",
-    "strictures" => 1
+    "Weather::OpenWeatherMap" => "0.001002"
   },
   "TEST_REQUIRES" => {
     "Test::More" => "0.88"
   },
-  "VERSION" => "0.001003",
+  "VERSION" => "0.001004",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -43,17 +40,14 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
-  "Carp" => 0,
-  "List::Objects::Types" => 1,
+  "Defaults::Modern" => 0,
   "Moo" => 1,
   "MooX::Role::POE::Emitter" => 0,
   "MooX::late" => "0.014",
   "POE" => 1,
   "POE::Component::Client::HTTP" => 0,
   "Test::More" => "0.88",
-  "Types::Standard" => 0,
-  "Weather::OpenWeatherMap" => "0.001002",
-  "strictures" => 1
+  "Weather::OpenWeatherMap" => "0.001002"
 );
 
 
