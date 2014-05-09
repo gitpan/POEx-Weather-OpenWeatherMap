@@ -1,12 +1,19 @@
 package POEx::Weather::OpenWeatherMap;
-$POEx::Weather::OpenWeatherMap::VERSION = '0.001004';
+$POEx::Weather::OpenWeatherMap::VERSION = '0.001005';
 use Defaults::Modern;
 
 use POE 'Component::Client::HTTP';
 
+use Weather::OpenWeatherMap::Cache;
 use Weather::OpenWeatherMap::Error;
+
 use Weather::OpenWeatherMap::Request;
+use Weather::OpenWeatherMap::Request::Current;
+use Weather::OpenWeatherMap::Request::Forecast;
+
 use Weather::OpenWeatherMap::Result;
+use Weather::OpenWeatherMap::Result::Current;
+use Weather::OpenWeatherMap::Result::Forecast;
 
 
 use Moo; use MooX::late;
@@ -30,6 +37,41 @@ has _ua_alias => (
     my ($self) = @_;
     $self->alias ? $self->alias . 'UA'
       : confess "Cannot build ua_alias; emitter not running"
+  },
+);
+
+
+has cache => (
+  lazy        => 1,
+  is          => 'ro',
+  isa         => Bool,
+  builder     => sub { 0 },
+);
+
+has cache_dir => (
+  lazy        => 1,
+  is          => 'ro',
+  isa         => Maybe[Str],
+  builder     => sub { undef },
+);
+
+has cache_expiry => (
+  lazy        => 1,
+  is          => 'ro',
+  isa         => Maybe[StrictNum],
+  builder     => sub { undef },
+);
+
+has _cache => (
+  lazy        => 1,
+  is          => 'ro',
+  isa         => InstanceOf['Weather::OpenWeatherMap::Cache'],
+  builder     => sub {
+    my ($self) = @_;
+    Weather::OpenWeatherMap::Cache->new(
+      maybe dir    => $self->cache_dir,
+      maybe expiry => $self->cache_expiry,
+    )
   },
 );
 
@@ -70,6 +112,27 @@ sub mxrp_emitter_stopped {
     if $kernel->alias_resolve( $self->_ua_alias );
 }
 
+method _result_type (Object $my_request) {
+  state $base = 'Weather::OpenWeatherMap::Request::';
+  my ($type, $event);
+  CLASS: {
+    if ($my_request->isa($base.'Current')) {
+      $type  = 'Current';
+      $event = 'weather';
+      last CLASS
+    }
+    
+    if ($my_request->isa($base.'Forecast')) {
+      $type  = 'Forecast';
+      $event = 'forecast';
+      last CLASS
+    }
+
+    confess "Unknown request type: $my_request"
+  }
+  wantarray ? ($type, $event) : $type
+}
+
 method get_weather (@params) { $self->yield(get_weather => @params) }
 
 sub ext_get_weather {
@@ -104,7 +167,15 @@ sub ext_get_weather {
       %args
   );
 
-  $self->_issue_http_request($my_request)
+  if ($self->cache && (my $cached = $self->_cache->retrieve($my_request)) ) {
+    my $obj = $cached->object;
+    my (undef, $event) = $self->_result_type($my_request);
+    $self->emit( $event => $obj );
+    return $obj
+  }
+
+  $self->_issue_http_request($my_request);
+  ()
 }
 
 
@@ -138,23 +209,7 @@ sub ext_http_response {
     return
   }
 
-  state $base = 'Weather::OpenWeatherMap::Request::';
-  my ($type, $event);
-  CLASS: {
-    if ($my_request->isa($base.'Current')) {
-      $type  = 'Current';
-      $event = 'weather';
-      last CLASS
-    }
-    
-    if ($my_request->isa($base.'Forecast')) {
-      $type  = 'Forecast';
-      $event = 'forecast';
-      last CLASS
-    }
-
-    confess "Unknown request type: $my_request"
-  } # CLASS
+  my ($type, $event) = $self->_result_type($my_request);
 
   my $content = $http_response->content;
   my $my_response = Weather::OpenWeatherMap::Result->new_for(
@@ -172,6 +227,8 @@ sub ext_http_response {
     );
     return
   }
+
+  $self->_cache->cache($my_response) if $self->cache;
 
   $self->emit( 
     $event => $my_response 
@@ -287,6 +344,23 @@ for more on OpenWeatherMap itself.
 Your L<OpenWeatherMap|http://www.openweathermap.org> API key.
 
 (See L<http://www.openweathermap.org/api> to register for free.)
+
+=head3 cache
+
+A boolean value indicating whether successful results should be cached to disk
+via L<Weather::OpenWeatherMap::Cache>.
+
+Defaults to false. This may change in a future release.
+
+=head3 cache_dir
+
+The directory in which cache files are saved. The default may be fine; see
+L<Weather::OpenWeatherMap::Cache>.
+
+=head3 cache_expiry
+
+The duration (in seconds) for which cache files are considered valid. The
+default may be fine; see L<Weather::OpenWeatherMap::Cache>.
 
 =head2 METHODS
 

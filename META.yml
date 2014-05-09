@@ -7,7 +7,7 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 5.015, CPAN::Meta::Converter version 2.140640'
+generated_by: 'Dist::Zilla version 5.016, CPAN::Meta::Converter version 2.141170'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -20,8 +20,8 @@ requires:
   MooX::late: 0.014
   POE: 1
   POE::Component::Client::HTTP: 0
-  Weather::OpenWeatherMap: 0.001002
+  Weather::OpenWeatherMap: 0.001005
   perl: v5.16.0
 resources:
   repository: git://github.com/avenj/poex-weather-openweathermap.git
-version: 0.001004
+version: 0.001005

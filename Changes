@@ -1,5 +1,9 @@
 Revision history for Perl module POEx-Weather-OpenWeatherMap
 
+0.001005 2014-05-09
+
+  - Add cache support via Weather::OpenWeatherMap::Cache
+
 0.001004 2014-04-25
 
   - use Defaults::Modern;

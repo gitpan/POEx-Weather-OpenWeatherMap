@@ -66,7 +66,7 @@ my $static_prereqs = do { my $x = {
                                       'MooX::late' => '0.014',
                                       'POE' => '1',
                                       'POE::Component::Client::HTTP' => '0',
-                                      'Weather::OpenWeatherMap' => '0.001002',
+                                      'Weather::OpenWeatherMap' => '0.001005',
                                       'perl' => 'v5.16.0'
                                     }
                     },

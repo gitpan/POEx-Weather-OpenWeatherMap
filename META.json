@@ -4,7 +4,7 @@
       "Jon Portnoy <avenj@cobaltirc.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 5.015, CPAN::Meta::Converter version 2.140640",
+   "generated_by" : "Dist::Zilla version 5.016, CPAN::Meta::Converter version 2.141170",
    "license" : [
       "perl_5"
    ],
@@ -37,7 +37,7 @@
             "MooX::late" : "0.014",
             "POE" : "1",
             "POE::Component::Client::HTTP" : "0",
-            "Weather::OpenWeatherMap" : "0.001002",
+            "Weather::OpenWeatherMap" : "0.001005",
             "perl" : "v5.16.0"
          }
       },
@@ -59,6 +59,6 @@
          "web" : "http://github.com/avenj/poex-weather-openweathermap"
       }
    },
-   "version" : "0.001004"
+   "version" : "0.001005"
 }
 

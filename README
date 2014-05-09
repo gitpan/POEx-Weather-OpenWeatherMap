@@ -97,6 +97,20 @@ DESCRIPTION
 
     (See <http://www.openweathermap.org/api> to register for free.)
 
+   cache
+    A boolean value indicating whether successful results should be cached
+    to disk via Weather::OpenWeatherMap::Cache.
+
+    Defaults to false. This may change in a future release.
+
+   cache_dir
+    The directory in which cache files are saved. The default may be fine;
+    see Weather::OpenWeatherMap::Cache.
+
+   cache_expiry
+    The duration (in seconds) for which cache files are considered valid.
+    The default may be fine; see Weather::OpenWeatherMap::Cache.
+
   METHODS
    start
     Start our session.

@@ -15,7 +15,6 @@ POEx::Weather::OpenWeatherMap - POE-enabled OpenWeatherMap client
         main => [qw/
           _start
           
-
           pwx_error
           pwx_weather
           pwx_forecast
@@ -26,15 +25,14 @@ POEx::Weather::OpenWeatherMap - POE-enabled OpenWeatherMap client
     sub _start {
       my ($kernel, $heap) = @_[KERNEL, HEAP];
       
+      # Create, store, and start emitter:
+      my $wx = POEx::Weather::OpenWeatherMap->new(
+        api_key      => $api_key,
+        event_prefix => 'pwx_',
+      );
 
-    # Create, store, and start emitter:
-    my $wx = POEx::Weather::OpenWeatherMap->new(
-      api_key      => $api_key,
-      event_prefix => 'pwx_',
-    );
-
-    $heap->{wx} = $wx;
-    $wx->start;
+      $heap->{wx} = $wx;
+      $wx->start;
 
       ## An example request:
       $wx->get_weather(
@@ -54,9 +52,9 @@ POEx::Weather::OpenWeatherMap - POE-enabled OpenWeatherMap client
     sub pwx_weather {
       my $result = $_[ARG0];
 
-    my $tag = $result->request->tag;
+      my $tag = $result->request->tag;
 
-    my $place = $result->name;
+      my $place = $result->name;
 
       my $tempf = $result->temp_f;
       my $conditions = $result->conditions_verbose;
@@ -67,7 +65,7 @@ POEx::Weather::OpenWeatherMap - POE-enabled OpenWeatherMap client
     sub pwx_forecast {
       my $result = $_[ARG0];
 
-    my $place = $result->name;
+      my $place = $result->name;
 
       my $itr = $result->iter;
       while (my $day = $itr->()) {
@@ -88,10 +86,10 @@ providing an object-oriented asynchronous interface to current & forecast
 weather conditions for a given city, latitude/longitude, or OpenWeatherMap
 city code.
 
-This is really just an asynchronous counterpart to [Weather::OpenWeatherMap](http://search.cpan.org/perldoc?Weather::OpenWeatherMap);
+This is really just an asynchronous counterpart to [Weather::OpenWeatherMap](https://metacpan.org/pod/Weather::OpenWeatherMap);
 look there for documentation regarding Request & Result objects.
 
-This an event emitter that consumes [MooX::Role::POE::Emitter](http://search.cpan.org/perldoc?MooX::Role::POE::Emitter); look there
+This an event emitter that consumes [MooX::Role::POE::Emitter](https://metacpan.org/pod/MooX::Role::POE::Emitter); look there
 for documentation on composed methods. See [http://www.openweathermap.org](http://www.openweathermap.org)
 for more on OpenWeatherMap itself.
 
@@ -102,6 +100,23 @@ for more on OpenWeatherMap itself.
 Your [OpenWeatherMap](http://www.openweathermap.org) API key.
 
 (See [http://www.openweathermap.org/api](http://www.openweathermap.org/api) to register for free.)
+
+### cache
+
+A boolean value indicating whether successful results should be cached to disk
+via [Weather::OpenWeatherMap::Cache](https://metacpan.org/pod/Weather::OpenWeatherMap::Cache).
+
+Defaults to false. This may change in a future release.
+
+### cache\_dir
+
+The directory in which cache files are saved. The default may be fine; see
+[Weather::OpenWeatherMap::Cache](https://metacpan.org/pod/Weather::OpenWeatherMap::Cache).
+
+### cache\_expiry
+
+The duration (in seconds) for which cache files are considered valid. The
+default may be fine; see [Weather::OpenWeatherMap::Cache](https://metacpan.org/pod/Weather::OpenWeatherMap::Cache).
 
 ## METHODS
 
@@ -130,13 +145,13 @@ pending requests).
       #   'lat 42, long -71'
       location => 'Manchester, NH',
 
-    # Set 'forecast => 1' to get the forecast,
-    # omit or set to false for current weather:
-    forecast => 1,
+      # Set 'forecast => 1' to get the forecast,
+      # omit or set to false for current weather:
+      forecast => 1,
 
-    # If 'forecast' is true, you can specify the number of days to fetch
-    # (up to 14):
-    days => 3,
+      # If 'forecast' is true, you can specify the number of days to fetch
+      # (up to 14):
+      days => 3,
 
       # Optional tag for identifying the response to this request:
       tag  => 'foo',
@@ -149,20 +164,20 @@ The location can be a 'City, State' or 'City, Country' string, an
 Y' string.
 
 Requests the current weather by default (see
-[Weather::OpenWeatherMap::Request::Current](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Request::Current)).
+[Weather::OpenWeatherMap::Request::Current](https://metacpan.org/pod/Weather::OpenWeatherMap::Request::Current)).
 
 If passed `forecast => 1`, requests a weather forecast (see
-[Weather::OpenWeatherMap::Request::Forecast](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Request::Forecast)), in which case `days
-=> $count` can be specified (up to 14).
+[Weather::OpenWeatherMap::Request::Forecast](https://metacpan.org/pod/Weather::OpenWeatherMap::Request::Forecast)), in which case `days
+&#x3d;> $count` can be specified (up to 14).
 
 An optional `tag =>` can be specified to identify the response when it
 comes in.
 
 Any extra arguments are passed to the constructor for the appropriate Request
-subclass; see [Weather::OpenWeatherMap::Request](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Request).
+subclass; see [Weather::OpenWeatherMap::Request](https://metacpan.org/pod/Weather::OpenWeatherMap::Request).
 
 The request is made asynchronously and a response (or error) emitted when it
-is available; see ["EMITTED EVENTS"](#EMITTED EVENTS). There is no useful return value.
+is available; see ["EMITTED EVENTS"](#emitted-events). There is no useful return value.
 
 ## RECEIVED EVENTS
 
@@ -174,7 +189,7 @@ is available; see ["EMITTED EVENTS"](#EMITTED EVENTS). There is no useful return
         tag      => 'foo',
     );
 
-POE interface to the ["get\_weather"](#get\_weather) method; see ["METHODS"](#METHODS) for available
+POE interface to the ["get\_weather"](#get_weather) method; see ["METHODS"](#methods) for available
 options.
 
 ## EMITTED EVENTS
@@ -184,40 +199,40 @@ options.
 Emitted when an error occurs; this may be an internal error, an HTTP error,
 or an error reported by the OpenWeatherMap API.
 
-`$_[ARG0]` is a [Weather::OpenWeatherMap::Error](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Error) object.
+`$_[ARG0]` is a [Weather::OpenWeatherMap::Error](https://metacpan.org/pod/Weather::OpenWeatherMap::Error) object.
 
 ### weather
 
 Emitted when a request for the current weather has been successfully processed.
 
-`$_[ARG0]` is a [Weather::OpenWeatherMap::Result::Current](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Result::Current) object; see
+`$_[ARG0]` is a [Weather::OpenWeatherMap::Result::Current](https://metacpan.org/pod/Weather::OpenWeatherMap::Result::Current) object; see
 that module's documentation for details on retrieving weather information.
 
 ### forecast
 
 Emitted when a request for a weather forecast has been successfully processed.
 
-`$_[ARG0]` is a [Weather::OpenWeatherMap::Result::Forecast](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Result::Forecast) object;
+`$_[ARG0]` is a [Weather::OpenWeatherMap::Result::Forecast](https://metacpan.org/pod/Weather::OpenWeatherMap::Result::Forecast) object;
 see that module's documentation for details on retrieving per-day forecasts
-([Weather::OpenWeatherMap::Result::Forecast::Day](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Result::Forecast::Day) objects).
+([Weather::OpenWeatherMap::Result::Forecast::Day](https://metacpan.org/pod/Weather::OpenWeatherMap::Result::Forecast::Day) objects).
 
 # SEE ALSO
 
-[Weather::OpenWeatherMap](http://search.cpan.org/perldoc?Weather::OpenWeatherMap)
+[Weather::OpenWeatherMap](https://metacpan.org/pod/Weather::OpenWeatherMap)
 
-[Weather::OpenWeatherMap::Error](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Error)
+[Weather::OpenWeatherMap::Error](https://metacpan.org/pod/Weather::OpenWeatherMap::Error)
 
-[Weather::OpenWeatherMap::Result](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Result)
+[Weather::OpenWeatherMap::Result](https://metacpan.org/pod/Weather::OpenWeatherMap::Result)
 
-[Weather::OpenWeatherMap::Result::Current](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Result::Current)
+[Weather::OpenWeatherMap::Result::Current](https://metacpan.org/pod/Weather::OpenWeatherMap::Result::Current)
 
-[Weather::OpenWeatherMap::Result::Forecast](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Result::Forecast)
+[Weather::OpenWeatherMap::Result::Forecast](https://metacpan.org/pod/Weather::OpenWeatherMap::Result::Forecast)
 
-[Weather::OpenWeatherMap::Request](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Request)
+[Weather::OpenWeatherMap::Request](https://metacpan.org/pod/Weather::OpenWeatherMap::Request)
 
-[Weather::OpenWeatherMap::Request::Current](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Request::Current)
+[Weather::OpenWeatherMap::Request::Current](https://metacpan.org/pod/Weather::OpenWeatherMap::Request::Current)
 
-[Weather::OpenWeatherMap::Request::Forecast](http://search.cpan.org/perldoc?Weather::OpenWeatherMap::Request::Forecast)
+[Weather::OpenWeatherMap::Request::Forecast](https://metacpan.org/pod/Weather::OpenWeatherMap::Request::Forecast)
 
 The `examples/` directory of this distribution.
 
