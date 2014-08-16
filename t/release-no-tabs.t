@@ -16,6 +16,7 @@ use Test::NoTabs;
 
 my @files = (
     'lib/POEx/Weather/OpenWeatherMap.pm',
+    't/00-report-prereqs.dd',
     't/00-report-prereqs.t',
     't/poex_owm.t',
     't/release-cpan-changes.t',

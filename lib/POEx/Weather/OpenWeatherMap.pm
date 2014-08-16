@@ -1,5 +1,5 @@
 package POEx::Weather::OpenWeatherMap;
-$POEx::Weather::OpenWeatherMap::VERSION = '0.001005';
+$POEx::Weather::OpenWeatherMap::VERSION = '0.002001';
 use Defaults::Modern;
 
 use POE 'Component::Client::HTTP';
@@ -10,10 +10,12 @@ use Weather::OpenWeatherMap::Error;
 use Weather::OpenWeatherMap::Request;
 use Weather::OpenWeatherMap::Request::Current;
 use Weather::OpenWeatherMap::Request::Forecast;
+use Weather::OpenWeatherMap::Request::Find;
 
 use Weather::OpenWeatherMap::Result;
 use Weather::OpenWeatherMap::Result::Current;
 use Weather::OpenWeatherMap::Result::Forecast;
+use Weather::OpenWeatherMap::Request::Find;
 
 
 use Moo; use MooX::late;
@@ -156,7 +158,10 @@ sub ext_get_weather {
     return
   }
 
-  my $type = delete $args{forecast} ? 'Forecast' : 'Current';
+  my $type = 
+      delete $args{forecast} ? 'Forecast' 
+    : delete $args{find}     ? 'Find'
+    : 'Current';
 
   my $my_request = Weather::OpenWeatherMap::Request->new_for(
     $type =>
@@ -413,6 +418,9 @@ L<Weather::OpenWeatherMap::Request::Current>).
 If passed C<< forecast => 1 >>, requests a weather forecast (see
 L<Weather::OpenWeatherMap::Request::Forecast>), in which case C<< days
 => $count >> can be specified (up to 14).
+
+If passed C<< find => 1 >>, requests search results for a given location name
+or latitude & longitude; see L<Weather::OpenWeatherMap::Request::Find>.
 
 An optional C<< tag => >> can be specified to identify the response when it
 comes in.

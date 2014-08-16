@@ -159,6 +159,9 @@ DESCRIPTION
     Weather::OpenWeatherMap::Request::Forecast), in which case "days =>
     $count" can be specified (up to 14).
 
+    If passed "find => 1", requests search results for a given location name
+    or latitude & longitude; see Weather::OpenWeatherMap::Request::Find.
+
     An optional "tag =>" can be specified to identify the response when it
     comes in.
 
